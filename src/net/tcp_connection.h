@@ -23,6 +23,8 @@ using TcpMessageCallback = std::function<int(TcpConnection*, const char* data, i
 using TcpConnectionFailCallback = std::function<void(EventLoop*, const char* peer_ip, int port)>;
 // called when a connection being reset
 using TcpDisconnectCallback = std::function<void(TcpConnection*)>;
+// called when got task callback
+using TcpTaskCallback = std::function<void(TcpConnection*)>;
 
 // After client connects the server or the server accepts a new client,
 // the pikiwidb will create a TcpConnection to handle the connection.
