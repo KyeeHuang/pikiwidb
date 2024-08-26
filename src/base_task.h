@@ -14,20 +14,39 @@
 
 namespace pikiwidb {
 
-// 
+const std::string kTaskNamePing = "ping";
+
+enum TaskFlags {
+  kTaskFlagsWrite = (1 << 0),
+  
+};
 
 class BaseTask : public std::enable_shared_from_this<BaseTask> {
 public:
-  BaseTask(std::shared_ptr<PClient> client) : client_(std::move(client)) {}
+  enum class OpType {
+    kGet,
+    kSet,
+    kDel,
+    kIncr,
+    kDecr,
+    kUnknown,
+  };
+
+  BaseTask() = default;
   virtual ~BaseTask() = default;
-  void Run(BaseCmd *cmd);
-  void CallBack();
+
+  virtual void Execute() = 0;
+  virtual void CallBack() = 0;
   
-  const std::string &CmdName();
-  std::shared_ptr<PClient> Client();
+  virtual std::string GetCommand() = 0;
+
+  OpType GetOpType() const { return op_type_; }
+
+protected:
+  OpType op_type_ = OpType::kUnknown;
 
 private:
-  std::shared_ptr<PClient> client_;
+  virtual bool DoInitial() = 0;
 };
 
 }

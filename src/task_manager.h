@@ -18,26 +18,20 @@
 namespace pikiwidb {
 
 
-class TaskPool {
+class TaskManager {
 public:
-  TaskPool() = default;
-  ~TaskPool() = default;
+  TaskManager() = default;
+  ~TaskManager() = default;
   
   static size_t GetMaxWorkerNum() { return kMaxWorkers; }
   
   bool Init();
   void Run(int argc, char* argv[]);
-  virtual void Exit();
-  virtual void PushTask(std::shared_ptr<BaseTask> task);
-  virtual void PushCmd(std::string cmd);
+  void Exit();
+  void PushTask(std::shared_ptr<BaseTask> task);
   bool IsExit() const;
   void SetName(const std::string& name);
 
-  bool Listen(const char* ip, int port, const TcpTaskCallback& ccb);
-
-  void Connect(const char* ip, int port, const TcpTaskCallback& ccb,
-               const TcpConnectionFailCallback& fcb = TcpConnectionFailCallback(), EventLoop* loop = nullptr);
-  
   EventLoop* BaseLoop();
   
   EventLoop* ChooseNextWorkerEventLoop();
@@ -68,32 +62,15 @@ protected:
   std::atomic<State> state_{State::kNone};
 
   pikiwidb::CmdTableManager cmd_table_manager_;
-};
 
-class CmdTaskManager : public TaskPool {
-public:
-  CmdTaskManager() = default;
-  ~CmdTaskManager() = default;
-  
-  void Exit() override;
-  void PushTask(std::shared_ptr<BaseTask> task) override;
-  void PushCmd(std::string cmd) override;
 private:
-  void StartWorkers() override;
-  
-private:
-  std::vector<std::thread> CmdThreads_;
-  std::vector<std::unique_ptr<std::mutex>> CmdMutex_;
-  std::vector<std::unique_ptr<std::condition_variable>> CmdCond_;
-  std::vector<std::deque<std::string>> CmdQueue_;
-  
   std::vector<std::thread> TaskThreads_;
   std::vector<std::unique_ptr<std::mutex>> TaskMutex_;
   std::vector<std::unique_ptr<std::condition_variable>> TaskCond_;
   std::vector<std::deque<std::shared_ptr<BaseTask>>> TaskQueue_;
-
-  std::atomic<uint64_t> counter_ = 0;
+  
   std::atomic<uint64_t> t_counter_ = 0;
-  bool CmdRunning_ = true;
+  bool TaskRunning_ = true;
 };
-}
+
+} // namespace pikiwidb

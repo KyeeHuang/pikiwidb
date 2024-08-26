@@ -31,6 +31,14 @@ bool BaseCmd::CheckArg(size_t num) const {
 
 std::vector<std::string> BaseCmd::CurrentKey(PClient* client) const { return std::vector<std::string>{client->Key()}; }
 
+void BaseCmd::ProxyExecute(PClient* client) {
+  DEBUG("proxy execute command: {}", client->CmdName());
+  
+  if (g_config.use_raft.load()) {
+    
+  }
+}
+
 void BaseCmd::Execute(PClient* client) {
   DEBUG("execute command: {}", client->CmdName());
 

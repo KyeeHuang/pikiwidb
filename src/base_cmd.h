@@ -271,6 +271,8 @@ class BaseCmd : public std::enable_shared_from_this<BaseCmd> {
   // 后续如果需要拓展，在这个函数里面拓展
   // 对外部调用者来说，只暴露这个函数，其他的都是内部实现
   void Execute(PClient* client);
+  
+  void ProxyExecute(PClient* client);
 
   // binlog 相关的函数，我对这块不熟悉，就没有移植，后面binlog应该可以在Execute里面调用
   virtual std::string ToBinlog(uint32_t exec_time, uint32_t term_id, uint64_t logic_id, uint32_t filenum,
