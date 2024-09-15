@@ -5,6 +5,7 @@
 #include "task_manager.h"
 #include "pstd/log.h"
 #include "util.h"
+#include "pikiwidb.h"
 
 namespace pikiwidb {
 
@@ -119,8 +120,20 @@ void TaskManager::StartWorkers() {
         }
         if (!TaskRunning_) break;
         auto task = TaskQueue_[index].front();
-        
-        task->Execute();
+
+        switch (task->GetTaskType()) {
+        case ProxyBaseCmd::TaskType::kExecute:
+          task->Execute();
+          break;
+        case ProxyBaseCmd::TaskType::kCallback: 
+          task->CallBack();
+          g_pikiwidb->PushWriteTask(task->Client());
+          // return  DoCmd 之后有无返回，client 是否有 eventloop 维护
+          break;
+        default:
+          ERROR("unsupported task type...");
+          break;
+        } 
         
         TaskQueue_[index].pop_front();
       }
@@ -139,7 +152,7 @@ void TaskManager::Reset() {
   BaseLoop()->Reset();
 }
 
-void TaskManager::PushTask(std::shared_ptr<BaseTask> task) {
+void TaskManager::PushTask(std::shared_ptr<ProxyBaseCmd> task) {
   auto pos = (++t_counter_) % worker_num_;
   std::unique_lock lock(*TaskMutex_[pos]);
   

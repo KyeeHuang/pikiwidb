@@ -7,11 +7,9 @@
 #include <thread>
 
 #include "client.h"
-#include "base_task.h"
+#include "proxy_base_cmd.h"
 #include "cmd_thread_pool.h"
 #include "net/event_loop.h"
-#include "net/http_client.h"
-#include "net/http_server.h"
 #include "base_cmd.h"
 #include "cmd_table_manager.h"
 
@@ -28,7 +26,7 @@ public:
   bool Init();
   void Run(int argc, char* argv[]);
   void Exit();
-  void PushTask(std::shared_ptr<BaseTask> task);
+  void PushTask(std::shared_ptr<ProxyBaseCmd> task);
   bool IsExit() const;
   void SetName(const std::string& name);
 
@@ -67,7 +65,7 @@ private:
   std::vector<std::thread> TaskThreads_;
   std::vector<std::unique_ptr<std::mutex>> TaskMutex_;
   std::vector<std::unique_ptr<std::condition_variable>> TaskCond_;
-  std::vector<std::deque<std::shared_ptr<BaseTask>>> TaskQueue_;
+  std::vector<std::deque<std::shared_ptr<ProxyBaseCmd>>> TaskQueue_;
   
   std::atomic<uint64_t> t_counter_ = 0;
   bool TaskRunning_ = true;

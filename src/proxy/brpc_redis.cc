@@ -6,7 +6,8 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "base_task.h"
+#include "config.h"
+#include "proxy_base_cmd.h"
 
 namespace pikiwidb {
 
@@ -17,14 +18,19 @@ void* thread_entry(void* arg) {
   return nullptr;
 }
 
-void BrpcRedis::PushRedisTask(const std::shared_ptr<BaseTask>& task) {
+void BrpcRedis::Open() {
+
+}
+
+void BrpcRedis::PushRedisTask(const std::shared_ptr<ProxyBaseCmd>& task) {
   std::lock_guard<std::mutex> lock(lock__);
   tasks_.push_back(task);
 }
 
-void SetResponse(const brpc::RedisResponse& response, const std::shared_ptr<BaseTask>& task, size_t index) {
+void SetResponse(const brpc::RedisResponse& response, const std::shared_ptr<ProxyBaseCmd>& task, size_t index) {
   // TODO: write callback
   LOG(INFO) << response.reply(index);
+  
 
 
 }
@@ -33,7 +39,7 @@ void BrpcRedis::Commit() {
   brpc::RedisRequest request;
   brpc::RedisResponse response;
   brpc::Controller cntl;
-  std::vector<std::shared_ptr<BaseTask>> task_batch;
+  std::vector<std::shared_ptr<ProxyBaseCmd>> task_batch;
   size_t batch_size = std::min((size_t) tasks_.size(), batch_size_);
 
   {
@@ -46,8 +52,6 @@ void BrpcRedis::Commit() {
     request.AddCommand(task->GetCommand());
   } 
   
-  bthread_t bthread;
-  
   auto callback = new std::function<void()>([&]() {
     channel_.CallMethod(nullptr, &cntl, &request, &response, nullptr);
     for (size_t i = 0; i < task_batch.size(); i++) {
@@ -55,7 +59,7 @@ void BrpcRedis::Commit() {
     }
   });
 
-  bthread_start_background(&bthread, nullptr, thread_entry, callback);
+  callback();
 }
   
 } // namespace pikiwidb
