@@ -9,7 +9,7 @@ class SetProxyCmd : public ProxyBaseCmd {
  public:
   enum SetCondition { kNONE, kNX, kXX, kEXORPX };
   SetProxyCmd(std::string key, std::string value) : key_(key), value_(value) {};
-  PClient* Client() { return client_; }
+  std::shared_ptr<PClient> Client() { return client_; }
   
  protected:
   void Execute() override;
@@ -21,7 +21,7 @@ class SetProxyCmd : public ProxyBaseCmd {
   std::string key_;
   std::string value_;
   int64_t sec_ = 0;
-  PClient* client_; // TODO: need to discuss
+  std::shared_ptr<PClient> client_; // TODO: need to discuss
   Router* router_;  
   
   SetProxyCmd::SetCondition condition_{kNONE};

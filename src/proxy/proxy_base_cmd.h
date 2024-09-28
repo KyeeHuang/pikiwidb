@@ -55,6 +55,7 @@ public:
   OpType GetOpType() const { return op_type_; }
   KeyType GetKeyType() const { return key_type_; }
   TaskType GetTaskType() const { return task_type_; }
+  virtual std::shared_ptr<PClient> Client() = 0;
   virtual std::string GetKey() = 0; 
 
 protected:

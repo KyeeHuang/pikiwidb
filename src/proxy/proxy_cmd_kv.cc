@@ -13,7 +13,7 @@ std::string SetProxyCmd::GetCommand() {
 
 bool SetProxyCmd::DoInitial(PClient* client) {
  // client 
- client_ = client;
+ client_.reset(client);
 }
   
 // 
@@ -35,9 +35,6 @@ void SetProxyCmd::CallBack() {
   // after DoCmd ?
   
   client_->SetRes(CmdRes::kOK);
-  
-  g_pikiwidb->PushWriteTask(client_);
-
 }
 
 } // namespace pikiwidb
